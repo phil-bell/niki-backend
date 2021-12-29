@@ -5,5 +5,5 @@ class LoginView(views.LoginView):
     template_name = "account/login.html"
 
 
-class LoginView(views.LogoutView):
+class LogoutView(views.LogoutView):
     template_name = "account/logout.html"
