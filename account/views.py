@@ -1,5 +1,7 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
@@ -20,12 +22,11 @@ class CreateLoginView(CreateView):
     form_class = UserCreationForm
     template_name = "account/create_login.html"
 
-    def get_success_url(self):
-        print("----------")
-        print(self.object)
-        print("----------")
+    def form_valid(self, form):
+        self.object = form.save()
         Profile.objects.create(user=self.object)
-        return reverse("account:login")
+        authenticate(username=self.object.username, password=form.cleaned_data['password1'])
+        return HttpResponseRedirect(reverse("account:profile"))
 
 
 class ProfileView(TemplateView):
