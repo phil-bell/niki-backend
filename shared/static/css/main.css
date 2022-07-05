@@ -1,0 +1,34 @@
+html{
+    height: 100%;
+}
+
+body {
+    align-items: center;
+    display: grid;
+    font-family: monospace;
+    height: 60%;
+    justify-content: center;
+}
+
+form{
+    display: grid;
+    /* width: 400px; */
+}
+
+p {
+    justify-self: center;
+}
+
+input {
+    border: solid 1px;
+    border-radius: 3px;
+}
+
+button {
+    background: white;
+    border-radius: 3px;
+    border: solid 1px;
+    font-family: monospace;
+    justify-self: end;
+    width: fit-content;
+}

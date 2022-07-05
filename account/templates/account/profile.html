@@ -1,6 +1,9 @@
-<form action="" method="POST">
-    {% csrf_token %}
-    {{ user_form.as_p }}
-    {{ profile_form.as_p }}
-    <button type="submit">Update</form>
-</form>
+
+{% extends 'shared/base.html' %}
+{% block content %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ profile_form.as_p }}
+        <button type="submit">Update</form>
+    </form>
+{% endblock content %}
