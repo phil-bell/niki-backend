@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"api-fiber-gorm/config"
+	"niki/config"
 
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v2"
