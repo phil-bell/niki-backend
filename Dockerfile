@@ -8,6 +8,7 @@ RUN go install github.com/cosmtrek/air@latest
 
 COPY go.mod /app
 COPY go.sum /app
+
 RUN go mod download
 
 COPY .env ./.env

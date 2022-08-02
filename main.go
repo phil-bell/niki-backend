@@ -1,7 +1,6 @@
 package main
 
 import (
-	"niki/database"
 	"niki/router"
 	"log"
 
