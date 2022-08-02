@@ -1,0 +1,21 @@
+services:
+  database:
+    ports:
+      - 5432:5432
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: postgres
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app/
+    command: air
