@@ -21,6 +21,6 @@ COPY router ./router
 
 RUN go build -o /niki
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["/niki"]
