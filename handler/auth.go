@@ -5,15 +5,11 @@ import (
 	"niki/config"
 	"niki/database"
 	"niki/model"
-	"os"
 	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
-	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/gofiber/fiber/v2/utils"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )

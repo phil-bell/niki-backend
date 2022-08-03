@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"api-fiber-gorm/database"
-	"api-fiber-gorm/model"
+	"niki/database"
+	"niki/model"
+
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,22 @@ import (
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
+}
+
+func validToken(t *jwt.Token, id string) bool {
+	n, err := strconv.Atoi(id)
+	if err != nil {
+		return false
+	}
+
+	claims := t.Claims.(jwt.MapClaims)
+	uid := int(claims["user_id"].(float64))
+
+	if uid != n {
+		return false
+	}
+
+	return true
 }
 
 
@@ -32,14 +49,13 @@ func GetUser(c *fiber.Ctx) error {
 func CreateUser(c *fiber.Ctx) error {
 	type NewUser struct {
 		Username string `json:"username"`
-		Password    string `json:"password"`
+		Password string `json:"password"`
 	}
 
 	db := database.DB
 	user := new(model.User)
 	if err := c.BodyParser(user); err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
-
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
 	hash, err := hashPassword(user.Password)

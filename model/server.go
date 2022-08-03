@@ -1,7 +1,6 @@
 package model
 
-import 
-	(
+import (
 	"gorm.io/gorm"
 )
 
