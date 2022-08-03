@@ -1,24 +1,77 @@
 package handler
 
 import (
-  "niki/model"
-  "github.com/gofiber/fiber/v2"
-  "github.com/gofiber/fiber/v2/middleware/basicauth"
+	"errors"
+	"niki/config"
+	"niki/database"
+	"niki/model"
+	"os"
+	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/csrf"
+	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v2/utils"
+	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 
-func Login(c *fiber.Ctx) error {
-	type LoginInput struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	type UserData struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	var input LoginInput
-	var ud UserData
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
 
+func getUserByUsername(e string) (*model.User, error) {
+	db := database.DB
+	var user model.User
+	if err := db.Where(&model.User{Username: e}).Find(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+
+func Login(c *fiber.Ctx) error {
+
+	user_data := &model.User{}
+	err := c.BodyParser(user_data)
+
+	if err != nil {
+		return err
+	}
+
+	if user_data.Username == "" {
+		return c.Status(fiber.StatusBadRequest).SendString("Username is required.")
+	}
+
+	if user_data.Password == "" {
+		return c.Status(fiber.StatusBadRequest).SendString("Password is required.")
+	}
+
+	user, err := getUserByUsername(user_data.Username)
+
+	if !CheckPasswordHash(user.Password, user_data.Password){
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid username or password.")
+	}
 	
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["username"] = user.Username
+	claims["user_id"] = user.ID
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+	user_token, err := token.SignedString([]byte(config.Config("SECRET")))
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(fiber.Map{"status": "success", "message": "Success login", "token": user_token})
+
 }

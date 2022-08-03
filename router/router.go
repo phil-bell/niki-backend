@@ -1,8 +1,7 @@
- package router
+package router
 
 import (
 	"niki/handler"
-	"niki/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -18,4 +17,8 @@ func SetupRoutes(app *fiber.App) {
 	auth := api.Group("/auth")
 	auth.Post("/login", handler.Login)
 
+	// User
+	user := api.Group("/user")
+	user.Get("/:id", handler.GetUser)
+	user.Post("/", handler.CreateUser)
 }

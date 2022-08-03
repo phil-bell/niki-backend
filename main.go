@@ -1,8 +1,9 @@
 package main
 
 import (
-	"niki/router"
 	"log"
+	"niki/database"
+	"niki/router"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
