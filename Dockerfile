@@ -6,19 +6,11 @@ WORKDIR /app
 
 RUN go install github.com/cosmtrek/air@latest
 
-COPY go.mod /app
-COPY go.sum /app
+COPY go.mod go.sum /app
 
 RUN go mod download
 
-COPY .env ./.env
-COPY main.go ./
-COPy config ./config
-COPY database ./database
-COPY handler ./handler
-COPY middleware ./middleware
-COPY model ./model
-COPY router ./router
+COPY . /app
 
 RUN go build -o /niki
 

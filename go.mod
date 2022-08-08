@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/gofiber/fiber/v2 v2.36.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	gorm.io/driver/postgres v1.3.8

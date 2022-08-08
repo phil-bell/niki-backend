@@ -12,7 +12,7 @@ type Torrent struct {
 	Location   string    `json:"location"`
 	Magnet     string    `json:"magnet"`
 	Names      string    `json:"names"`
-	Server 	   Server    `gorm:"references:ServerID"`
-	User       User      `gorm:"references:UserID"`
+	Server 	   Server
+	User       User
 	CompleteAt time.Time `json:"CompleteAt"`
 }

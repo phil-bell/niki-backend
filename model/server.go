@@ -6,8 +6,9 @@ import (
 
 type Server struct {
 	gorm.Model
-	ID       uint   `gorm:"primaryKey"`
-	Key      string `json:"key"`
-	Names    string `json:"names"`
-	User     User   `gorm:"references:UserID"`
+	ID   			uint   `gorm:"primaryKey"`
+	Key  			string `json:"key"`
+	Name 			string `json:"name"`
+	UserRefer int 	 `json:user_id`
+	User 			User   `gorm:"references:UserRefer"`
 }

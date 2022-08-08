@@ -3,43 +3,56 @@ package handler
 import (
 	"niki/database"
 	"niki/model"
-
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+
 )
 
-func CreateServer(c *fiber.Ctx) error {
+func CreateServer(context *fiber.Ctx) error {
 	type NewServer struct {
-		Key   string     `json:"key"`
-		Names string     `json:"names"`
-		User  model.User `gorm:"references:UserID"`
+		Name 			string `json:"name"`
+		UserRefer int    `json:user_id`
 	}
 
 	db := database.DB
 	server := new(model.Server)
-	if err := c.BodyParser(server); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
+
+	if err := context.BodyParser(server); err != nil {
+		return context.Status(400).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	id := c.Params("id")
-	token := c.Locals("user").(*jwt.Token)
+	var user model.User
+	db.Find(&user, server.UserRefer)
+	server.User = user
 
-	if !validToken(token, id) {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Invalid token id", "data": nil})
+	key := uuid.New()
+	server.Key = key.String()
+
+	return context.JSON(fiber.Map{"status": "success", "message": "Created server", "data": server})
+
+	token := context.Locals("user").(*jwt.Token)
+
+	if !validToken(token, "1") {
+		return context.Status(500).JSON(fiber.Map{"status": "error", "message": "Invalid token id", "data": nil})
 	}
 
 	if err := db.Create(&server).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create server", "data": err})
+		return context.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create server", "data": err})
 	}
 
-	key := string(make([]byte, 64))
-	server.Key = key
-
-	newServer := NewServer{
-		Names: server.Names,
-		User:  server.User,
-		Key:   server.Key,
-	}
-
-	return c.JSON(fiber.Map{"status": "success", "message": "Created server", "data": newServer})
+	return context.JSON(fiber.Map{"status": "success", "message": "Created server", "data": server})
 }
+
+
+// func GetServer(context *fiber.Ctx) error {
+// 	id := context.Params("id")
+// 	db := database.DB
+// 	var server model.Server
+// 	db.Find(&server, id)
+// 	if server.Name == "" {
+// 		return context.Status(404).JSON(fiber.Map{"status": "error", "message": "No server found with ID", "data": nil})
+// 	}
+// 	return context.JSON(fiber.Map{"status": "success", "message": "server found", "data": server})
+// }
