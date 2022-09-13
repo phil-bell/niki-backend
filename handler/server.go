@@ -3,7 +3,6 @@ package handler
 import (
 	"niki/database"
 	"niki/model"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
