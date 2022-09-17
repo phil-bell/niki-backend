@@ -2,14 +2,13 @@ package handler
 
 import (
 	"errors"
-	"niki/config"
 	"niki/database"
 	"niki/model"
 	"time"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -42,29 +41,35 @@ func Login(context *fiber.Ctx) error {
 	}
 
 	if user_data.Username == "" {
-		return context.Status(fiber.StatusBadRequest).SendString("Username is required.")
+		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Username is required."})
 	}
 
 	if user_data.Password == "" {
-		return context.Status(fiber.StatusBadRequest).SendString("Password is required.")
+		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Password is required."})
 	}
 
 	user, err := getUserByUsername(user_data.Username)
 	if !CheckPasswordHash(user.Password, user_data.Password){
-		return context.Status(fiber.StatusBadRequest).SendString("Invalid username or password.")
+		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Invalid username or password."})
 	}
 	
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = user.Username
-	claims["user_id"] = user.ID
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-
-	user_token, err := token.SignedString([]byte(config.Config("SECRET")))
-	if err != nil {
-		return context.SendStatus(fiber.StatusInternalServerError)
+	claims := jwt.MapClaims{
+		"username":  user.Username,
+		"user_id": user.ID,
+		"exp":   time.Now().Add(time.Hour * 72).Unix(),
 	}
+	println(claims)
+	// Create token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	println(token)
+
+	// Generate encoded token and send it as response.
+	user_token, err := token.SignedString([]byte("secret"))
+	println(user_token)
+	if err != nil {
+		return context.JSON(fiber.Map{"status": "error", "message": fiber.StatusInternalServerError})
+	}
+
 
 	return context.JSON(fiber.Map{"status": "success", "message": "Success login", "token": user_token})
 
