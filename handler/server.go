@@ -3,27 +3,26 @@ package handler
 import (
 	"niki/database"
 	"niki/model"
-	"github.com/gofiber/fiber/v2"
-	// "github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 
+	"github.com/gofiber/fiber/v2"
+
+	"github.com/google/uuid"
 )
 
 func CreateServer(context *fiber.Ctx) error {
 	type NewServer struct {
 		Name 			string `json:"name"`
-		UserRefer int    `json:user_id`
+		UserRefer int 	 `json:user_id`
 	}
 
 	db := database.DB
 	server := new(model.Server)
-
 	if err := context.BodyParser(server); err != nil {
 		return context.Status(400).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
 	var user model.User
-	db.Find(&user, server.UserRefer)
+	db.First(&user, 1)
 	server.User = user
 
 	key := uuid.New()

@@ -1,12 +1,12 @@
 services:
   database:
     ports:
-      - 5432:5432
-    image: postgres
+      - 6379:6379
+    image: bitnami/redis
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_HOST: postgres
-      POSTGRES_PASSWORD: postgres
+      ALLOW_EMPTY_PASSWORD: yes
+    volumes:
+      - redis/data:/bitnami/redis/data
 
   server:
     build:
