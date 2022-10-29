@@ -1,19 +1,15 @@
-# syntax=docker/dockerfile:1
+FROM python:3.11-alpine
 
-FROM golang:alpine
+WORKDIR /server/
 
-WORKDIR /app
+ENV PYTHONUNBUFFERED=1
 
-RUN go install github.com/cosmtrek/air@latest
+COPY requirements.txt /server/
 
-COPY go.mod go.sum /app
+RUN pip install -r requirements.txt
 
-RUN go mod download
+COPY . /server/
 
-COPY . /app
+RUN python manage.py migrate
 
-RUN go build -o /niki
-
-EXPOSE 3000
-
-CMD ["/niki"]
+CMD ["python", "manage.py", "runserver"]
