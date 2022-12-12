@@ -3,24 +3,20 @@ from api.serializers import (LocationSerializer, ServerSerializer,
                              TorrentSerializer, UserSerializer)
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from rest_framework import permissions, viewsets
 from rest_framework_simplejwt.authentication import \
     JWTStatelessUserAuthentication
 
 
-class UserFilteredMixin:
-    user_pk_relation = "pk"
-
+class AnonUserFilteredMixin:
     def get_queryset(self) -> QuerySet:
         if self.request.user.is_anonymous:
             return self.queryset.none()
-        elif self.request.user.is_superuser:
-            return self.queryset
-        return self.queryset.filter(**{self.user_pk_relation: self.request.user.pk})
+        return self.queryset
 
 
-class UserViewSet(viewsets.ModelViewSet, UserFilteredMixin):
+class UserViewSet(viewsets.ModelViewSet, AnonUserFilteredMixin):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -31,19 +27,43 @@ class UserViewSet(viewsets.ModelViewSet, UserFilteredMixin):
         return super().perform_create(serializer)
 
 
-class ServerViewset(viewsets.ModelViewSet, UserFilteredMixin):
+class ServerViewset(viewsets.ModelViewSet):
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
-    user_pk_relation = "user__pk"
+
+    def get_queryset(self) -> QuerySet:
+        return (
+            super()
+            .get_queryset()
+            .filter(Q(owner=self.request.user) | Q(users__in=[self.request.user]))
+        )
 
 
-class LocationViewset(viewsets.ModelViewSet, UserFilteredMixin):
+class LocationViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
-    user_pk_relation = "server__user__pk"
+
+    def get_queryset(self) -> QuerySet:
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                Q(server__owner=self.request.user)
+                | Q(server__users__in=[self.request.user])
+            )
+        )
 
 
-class TorrentViewset(viewsets.ModelViewSet, UserFilteredMixin):
+class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
     queryset = Torrent.objects.all()
     serializer_class = TorrentSerializer
-    user_pk_relation = "server__user__pk"
+
+    def get_queryset(self) -> QuerySet:
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                Q(server__owner=self.request.user)
+                | Q(server__users__in=[self.request.user])
+            )
+        )

@@ -4,11 +4,11 @@ from rest_framework import serializers
 
 
 class UserValidatedMixin:
-    def get_user_attribute(self, attr) -> User:
+    def get_models_owner(self, attr) -> User:
         return attr.get("user")
 
     def validate(self, attr):
-        if self.context["request"].user != self.get_user_attribute(attr):
+        if self.context["request"].user != self.get_models_owner(attr):
             raise serializers.ValidationError("User does not own this server")
         return super().validate(attr)
 
@@ -28,11 +28,12 @@ class ServerSerializer(serializers.ModelSerializer, UserValidatedMixin):
             "url",
             "name",
             "secret",
+            "users",
         ]
 
     def create(self, validated_data) -> Server:
         server = super().create(validated_data)
-        server.update(user=self.context["request"].user)
+        server.update(owner=self.context["request"].user)
         return server
 
 
@@ -46,8 +47,8 @@ class LocationSerializer(serializers.ModelSerializer, UserValidatedMixin):
             "server",
         ]
 
-    def get_user_attribute(self, attr) -> User:
-        return attr.get("server").user
+    def get_models_owner(self, attr) -> User:
+        return attr.get("server").owner
 
 
 class TorrentSerializer(serializers.ModelSerializer, UserValidatedMixin):
@@ -61,5 +62,5 @@ class TorrentSerializer(serializers.ModelSerializer, UserValidatedMixin):
             "location",
         ]
 
-    def get_user_attribute(self, attr) -> User:
-        return attr.get("server").user
+    def get_models_owner(self, attr) -> User:
+        return attr.get("server").owner
