@@ -3,41 +3,34 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 
-class UserValidatedMixin:
-    def get_models_owner(self, attr) -> User:
-        return attr.get("user")
-
-    def validate(self, attr):
-        if self.context["request"].user != self.get_models_owner(attr):
-            raise serializers.ValidationError("User does not own this server")
-        return super().validate(attr)
-
-
-class UserSerializer(serializers.ModelSerializer, UserValidatedMixin):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["pk", "url", "username", "password"]
         extra_kwargs = {"password": {"write_only": True}}
 
 
-class ServerSerializer(serializers.ModelSerializer, UserValidatedMixin):
+class ServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Server
         fields = [
             "pk",
             "url",
+            "key",
             "name",
             "secret",
             "users",
+            "owner",
         ]
 
-    def create(self, validated_data) -> Server:
-        server = super().create(validated_data)
-        server.update(owner=self.context["request"].user)
-        return server
+    def create(self, *args, **kwargs):
+        instance = super().create(*args, **kwargs)
+        instance.owner = self.context["request"].user
+        instance.save()
+        return instance
 
 
-class LocationSerializer(serializers.ModelSerializer, UserValidatedMixin):
+class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = [
@@ -47,11 +40,8 @@ class LocationSerializer(serializers.ModelSerializer, UserValidatedMixin):
             "server",
         ]
 
-    def get_models_owner(self, attr) -> User:
-        return attr.get("server").owner
 
-
-class TorrentSerializer(serializers.ModelSerializer, UserValidatedMixin):
+class TorrentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Torrent
         fields = [
@@ -61,6 +51,3 @@ class TorrentSerializer(serializers.ModelSerializer, UserValidatedMixin):
             "server",
             "location",
         ]
-
-    def get_models_owner(self, attr) -> User:
-        return attr.get("server").owner

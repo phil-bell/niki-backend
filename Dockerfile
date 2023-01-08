@@ -25,4 +25,8 @@ CMD ["uwsgi", "--socket", ":8000", "--module", "app.wsgi", "--threads", "4", "--
 # docker build --target dev -t niki-backend .
 
 # Start command: 
-# docker run --rm --tty --name niki-backend --volume $(pwd):/server -p 8000:8000 niki-backend
+# docker run --rm -it --name niki-backend --volume $(pwd):/server -p 8000:8000 niki-backend
+
+# Migrate command:
+# docker exec --tty niki-backend python manage.py makemigrations
+# docker exec --tty niki-backend python manage.py migrate

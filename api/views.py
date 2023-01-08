@@ -4,7 +4,7 @@ from api.serializers import (LocationSerializer, ServerSerializer,
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
-from rest_framework import permissions, viewsets
+from rest_framework import mixins, permissions, viewsets
 from rest_framework_simplejwt.authentication import \
     JWTStatelessUserAuthentication
 
@@ -27,7 +27,13 @@ class UserViewSet(viewsets.ModelViewSet, AnonUserFilteredMixin):
         return super().perform_create(serializer)
 
 
-class ServerViewset(viewsets.ModelViewSet):
+class ServerViewset(
+    viewsets.ModelViewSet,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+):
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
 
@@ -64,6 +70,6 @@ class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
             .get_queryset()
             .filter(
                 Q(server__owner=self.request.user)
-                | Q(server__users__in=[self.request.user])
+                | Q(server__users__in=[self.request.user.id])
             )
         )
