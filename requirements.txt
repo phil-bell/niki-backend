@@ -1,3 +1,4 @@
 Django<5
 djangorestframework<4
 djangorestframework-simplejwt<6
+uvicorn==0.20.0
