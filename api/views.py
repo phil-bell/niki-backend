@@ -4,6 +4,7 @@ from api.serializers import (LocationSerializer, ServerSerializer,
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
+from django.http import Http404
 from rest_framework import mixins, permissions, viewsets
 from rest_framework_simplejwt.authentication import \
     JWTStatelessUserAuthentication
@@ -38,11 +39,14 @@ class ServerViewset(
     serializer_class = ServerSerializer
 
     def get_queryset(self) -> QuerySet:
-        return (
-            super()
-            .get_queryset()
-            .filter(Q(owner=self.request.user) | Q(users__in=[self.request.user]))
-        )
+        try:
+            return (
+                super()
+                .get_queryset()
+                .filter(Q(owner=self.request.user) | Q(users__in=[self.request.user]))
+            )
+        except TypeError:
+            raise Http404
 
 
 class LocationViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
@@ -50,14 +54,17 @@ class LocationViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
     serializer_class = LocationSerializer
 
     def get_queryset(self) -> QuerySet:
-        return (
-            super()
-            .get_queryset()
-            .filter(
-                Q(server__owner=self.request.user)
-                | Q(server__users__in=[self.request.user])
+        try:
+            return (
+                super()
+                .get_queryset()
+                .filter(
+                    Q(server__owner=self.request.user)
+                    | Q(server__users__in=[self.request.user.id])
+                )
             )
-        )
+        except TypeError:
+            raise Http404
 
 
 class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
@@ -65,11 +72,14 @@ class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
     serializer_class = TorrentSerializer
 
     def get_queryset(self) -> QuerySet:
-        return (
-            super()
-            .get_queryset()
-            .filter(
-                Q(server__owner=self.request.user)
-                | Q(server__users__in=[self.request.user.id])
+        try:
+            return (
+                super()
+                .get_queryset()
+                .filter(
+                    Q(server__owner=self.request.user)
+                    | Q(server__users__in=[self.request.user.id])
+                )
             )
-        )
+        except TypeError:
+            raise Http404

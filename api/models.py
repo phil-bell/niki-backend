@@ -1,9 +1,11 @@
+import json
 import secrets
 import uuid
 
 from django.contrib.auth.models import User
 from django.core.management.utils import get_random_secret_key
 from django.db import models
+from nacl.public import SealedBox
 
 
 def generate_secret():
@@ -19,9 +21,9 @@ class Server(models.Model):
         blank=True,
         null=True,
     )
-    key = models.UUIDField(default=uuid.uuid4)
-    secret = models.CharField(default=generate_secret, max_length=255)
+    public_key = models.CharField(max_length=255, blank=True, null=True)
     users = models.ManyToManyField(User, related_name="servers", blank=True)
+    ip = models.GenericIPAddressField(blank=True, null=True)
 
 
 class Location(models.Model):
@@ -35,3 +37,13 @@ class Torrent(models.Model):
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, blank=True, null=True
     )
+
+    @property
+    def data(self):
+        return json.dumps(
+            {"magnet": self.magnet, "location": self.location.path}
+        ).encode("utf-8")
+
+    def encrypt(self):
+        box = SealedBox(self.server.public_key)
+        return box.encrypt(self.data)

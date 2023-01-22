@@ -1,3 +1,4 @@
+import requests
 from api.models import Location, Server, Torrent
 from django.contrib.auth.models import User
 from rest_framework import serializers
@@ -18,7 +19,7 @@ class ServerSerializer(serializers.ModelSerializer):
             "url",
             "key",
             "name",
-            "secret",
+            "public_key",
             "users",
             "owner",
         ]
@@ -51,3 +52,8 @@ class TorrentSerializer(serializers.ModelSerializer):
             "server",
             "location",
         ]
+
+    def create(self, *args, **kwargs):
+        instance = super().create(*args, **kwargs)
+        response = requests.post(instance.server.ip, data=instance.encrypt())
+        return instance
