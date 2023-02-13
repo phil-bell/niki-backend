@@ -1,13 +1,19 @@
 import requests
-from api.models import Location, Server, Torrent
 from django.contrib.auth.models import User
 from rest_framework import serializers
+
+from api.models import Location, Server, Torrent
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["pk", "url", "username", "password"]
+        fields = [
+            "pk",
+            "url",
+            "username",
+            "password",
+        ]
         extra_kwargs = {"password": {"write_only": True}}
 
 
@@ -17,11 +23,11 @@ class ServerSerializer(serializers.ModelSerializer):
         fields = [
             "pk",
             "url",
-            "key",
             "name",
+            "owner",
             "public_key",
             "users",
-            "owner",
+            "ip",
         ]
 
     def create(self, *args, **kwargs):

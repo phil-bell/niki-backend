@@ -1,6 +1,3 @@
-from api.models import Location, Server, Torrent
-from api.serializers import (LocationSerializer, ServerSerializer,
-                             TorrentSerializer, UserSerializer)
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
@@ -8,6 +5,10 @@ from django.http import Http404
 from rest_framework import mixins, permissions, viewsets
 from rest_framework_simplejwt.authentication import \
     JWTStatelessUserAuthentication
+
+from api.models import Location, Server, Torrent
+from api.serializers import (LocationSerializer, ServerSerializer,
+                             TorrentSerializer, UserSerializer)
 
 
 class AnonUserFilteredMixin:
