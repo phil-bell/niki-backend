@@ -27,7 +27,7 @@ class ServerSerializer(serializers.ModelSerializer):
             "owner",
             "public_key",
             "users",
-            "ip",
+            "address",
         ]
 
     def create(self, *args, **kwargs):
@@ -61,5 +61,10 @@ class TorrentSerializer(serializers.ModelSerializer):
 
     def create(self, *args, **kwargs):
         instance = super().create(*args, **kwargs)
-        response = requests.post(instance.server.ip, data=instance.encrypt())
+        data = instance.encrypt()
+        response = requests.post(
+            f"{instance.server.address}/add/",
+            data=data,
+        )
+        
         return instance
