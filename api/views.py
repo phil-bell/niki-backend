@@ -2,13 +2,16 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import Http404
-from rest_framework import mixins, permissions, viewsets
-from rest_framework_simplejwt.authentication import \
-    JWTStatelessUserAuthentication
+from rest_framework import mixins, viewsets
 
-from api.models import Location, Server, Torrent
-from api.serializers import (LocationSerializer, ServerSerializer,
-                             TorrentSerializer, UserSerializer)
+from api.models import Key, Location, Server, Torrent
+from api.serializers import (
+    KeySerializer,
+    LocationSerializer,
+    ServerSerializer,
+    TorrentSerializer,
+    UserSerializer,
+)
 
 
 class AnonUserFilteredMixin:
@@ -84,3 +87,9 @@ class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
             )
         except TypeError:
             raise Http404
+
+
+
+class KeyViewset(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = Key.objects.all()
+    serializer_class = KeySerializer

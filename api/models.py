@@ -4,7 +4,7 @@ import secrets
 from django.contrib.auth.models import User
 from django.db import models
 from nacl.encoding import HexEncoder
-from nacl.public import PublicKey, SealedBox
+from nacl.public import PrivateKey, PublicKey, SealedBox
 
 
 def generate_secret():
@@ -46,3 +46,15 @@ class Torrent(models.Model):
     def encrypt(self):
         box = SealedBox(PublicKey(self.server.public_key.encode(), encoder=HexEncoder))
         return box.encrypt(self.data)
+
+
+class Key(models.Model):
+    private_key = models.CharField(max_length=64, blank=True, null=True)
+    public_key = models.CharField(max_length=64, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            private_key = PrivateKey.generate()
+            self.private_key = private_key.encode(encoder=HexEncoder).decode()
+            self.public_key = private_key.public_key.encode(encoder=HexEncoder).decode()
+        super(Key, self).save(*args, **kwargs)

@@ -1,8 +1,11 @@
+from pydoc import resolve
+
 import requests
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.exceptions import APIException
 
-from api.models import Location, Server, Torrent
+from api.models import Key, Location, Server, Torrent
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -66,5 +69,12 @@ class TorrentSerializer(serializers.ModelSerializer):
             f"{instance.server.address}/add/",
             data=data,
         )
-        
+        if response.status_code != 200:
+            raise APIException("None 200 from niki server")
         return instance
+
+
+class KeySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Key
+        fields = ["public_key"]
