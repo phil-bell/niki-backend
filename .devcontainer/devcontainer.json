@@ -14,7 +14,8 @@
 				"ms-python.vscode-pylance",
 				"ms-python.isort",
 				"batisteo.vscode-django",
-				"ms-python.black-formatter"
+				"ms-python.black-formatter",
+				"ms-python.flake8"
 			]
 		}
 	}
