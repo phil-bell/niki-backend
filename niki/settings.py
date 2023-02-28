@@ -149,10 +149,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # DRF Authentication
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        # "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
 }
 
 CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:8001",
+    "http://localhost:8001",
 ]
