@@ -16,7 +16,7 @@ from api.views import (
 )
 
 router = routers.DefaultRouter()
-router.register(r"user", UserViewSet)
+# router.register(r"user", UserViewSet)
 router.register(r"server", ServerViewset)
 router.register(r"location", LocationViewset)
 router.register(r"torrent", TorrentViewset)
