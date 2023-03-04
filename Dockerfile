@@ -15,7 +15,7 @@ COPY . /server/
 
 RUN python manage.py migrate
 
-CMD ["uvicorn", "niki.asgi:application", "--port", "8080", "--reload"]
+CMD ["uvicorn", "niki.asgi:application", "--host", "0.0.0.0", "--port", "8080", "--reload"]
 
 
 # CMD ["uvicorn", "-b", "0.0.0.0", "-p", "8000", "niki.asgi:application"]
