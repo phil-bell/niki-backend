@@ -166,3 +166,9 @@ CORS_ALLOWED_ORIGINS = config(
     default="",
     cast=Csv(str),
 )
+
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="",
+    cast=Csv(str),
+)
