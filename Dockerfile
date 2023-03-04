@@ -15,15 +15,7 @@ COPY . /server/
 
 RUN python manage.py migrate
 
-FROM build as prod
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-FROM build as dev
-
-RUN apk add zsh
-
-CMD ["uvicorn", "niki.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "niki.asgi:application", "--port", "80", "--reload"]
 
 
 # CMD ["uvicorn", "-b", "0.0.0.0", "-p", "8000", "niki.asgi:application"]
