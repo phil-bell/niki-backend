@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "host.docker.internal",
+    "monkfish-app-pbv4l.ondigitalocean.app",
 ]
 
 
