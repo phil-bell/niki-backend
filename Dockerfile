@@ -13,7 +13,7 @@ RUN apk add --no-cache --virtual .pynacl_deps build-base python3-dev libffi-dev 
 
 COPY . /server/
 
-RUN python manage.py migrate && python manage.py collectstatic
+RUN python manage.py migrate && python manage.py collectstatic --noinput
 
 CMD ["uvicorn", "niki.asgi:application", "--host", "0.0.0.0", "--port", "8080", "--reload"]
 
