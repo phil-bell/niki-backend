@@ -18,7 +18,9 @@
 				"ms-python.flake8"
 			]
 		}
-	}
+	},
+	"runArgs": ["--env-file",".devcontainer/devcontainer.env"]
+
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
-from django.conf import os
+from decouple import Csv, config
 from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,18 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", get_random_secret_key())
+SECRET_KEY = config("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = [
-    "0.0.0.0",
-    "localhost",
-    "127.0.0.1",
-    "host.docker.internal",
-    "monkfish-app-pbv4l.ondigitalocean.app",
-]
+ALLOWED_HOSTS = config(
+    "DJANGO_ALLOWED_HOST",
+    default="",
+    cast=Csv(str),
+)
 
 
 # Application definition
@@ -140,7 +138,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_ROOT = "staticfiles"
+
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
+STATIC_URL = "/static/"
+
+# See:
+# https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+STATICFILES_DIRS = [
+    "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -154,7 +162,8 @@ REST_FRAMEWORK = {
     )
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://0.0.0.0:8001",
-    "http://localhost:8001",
-]
+CORS_ALLOWED_ORIGINS = config(
+    "DJANGO_CORS_ALLOWED_ORIGINS",
+    default="",
+    cast=Csv(str),
+)
