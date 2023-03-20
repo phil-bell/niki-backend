@@ -78,3 +78,10 @@ class KeySerializer(serializers.ModelSerializer):
     class Meta:
         model = Key
         fields = ["public_key"]
+
+
+class SearchSerializer(serializers.Serializer):
+    term = serializers.CharField()
+
+    class Meta:
+        fields = ["term"]

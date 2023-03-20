@@ -2,12 +2,16 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.http import Http404
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from the_python_bay import tpb
 
 from api.models import Key, Location, Server, Torrent
 from api.serializers import (
     KeySerializer,
     LocationSerializer,
+    SearchSerializer,
     ServerSerializer,
     TorrentSerializer,
     UserSerializer,
@@ -89,7 +93,15 @@ class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
             raise Http404
 
 
-
 class KeyViewset(viewsets.GenericViewSet, mixins.ListModelMixin):
     queryset = Key.objects.all()
     serializer_class = KeySerializer
+
+
+class SearchView(APIView):
+    def post(self, request, format=None):
+        serializer = SearchSerializer(data=request.data)
+        if serializer.is_valid():
+            results = tpb.search(serializer.validated_data["term"])
+            return Response([result.to_dict for result in results], status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
