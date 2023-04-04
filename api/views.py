@@ -57,7 +57,11 @@ class ServerViewset(
             raise Http404
 
 
-class LocationViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
+class LocationViewset(
+    viewsets.ModelViewSet,
+    AnonUserFilteredMixin,
+    mixins.ListModelMixin,
+):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
 
@@ -103,5 +107,7 @@ class SearchView(APIView):
         serializer = SearchSerializer(data=request.data)
         if serializer.is_valid():
             results = tpb.search(serializer.validated_data["term"])
-            return Response([result.to_dict for result in results], status=status.HTTP_200_OK)
+            return Response(
+                [result.to_dict for result in results], status=status.HTTP_200_OK
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
