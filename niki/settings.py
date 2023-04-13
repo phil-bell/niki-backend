@@ -168,7 +168,7 @@ CORS_ALLOWED_ORIGINS = config(
 )
 
 CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS",
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
     default="",
     cast=Csv(str),
 )

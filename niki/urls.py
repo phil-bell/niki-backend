@@ -13,7 +13,6 @@ from api.views import (
     SearchView,
     ServerViewset,
     TorrentViewset,
-    UserViewSet,
 )
 
 router = routers.DefaultRouter()
@@ -30,6 +29,5 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("api/search/", SearchView.as_view(), name="search"),
-
     path("api/", include(router.urls)),
 ]
