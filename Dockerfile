@@ -15,7 +15,7 @@ COPY . /server/
 
 RUN python manage.py collectstatic --noinput
 
-CMD ["uvicorn", "niki.asgi:application", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["daphne", "niki.asgi:application", "-b", "0.0.0.0", "-p", "8080"]
 
 
 # CMD ["uvicorn", "-b", "0.0.0.0", "-p", "8000", "niki.asgi:application"]
