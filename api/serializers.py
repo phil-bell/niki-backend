@@ -1,9 +1,14 @@
+import logging
+
 import requests
 from django.contrib.auth.models import User
+from requests.exceptions import ConnectTimeout
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import ValidationError
 
 from api.models import Key, Location, Server, Torrent
+
+_logger = logging.getLogger(__package__)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,13 +68,21 @@ class TorrentSerializer(serializers.ModelSerializer):
     def create(self, *args, **kwargs):
         instance = super().create(*args, **kwargs)
         data = instance.encrypt()
-        response = requests.post(
-            f"{instance.server.address}/add/",
-            data=data,
-        )
-        if response.status_code != 200:
-            raise APIException("None 200 from niki server")
-        return instance
+        try:
+            response = requests.post(
+                f"{instance.server.address}/add/",
+                data=data,
+                timeout=5,
+            )
+            if response.status_code != 200:
+                raise ValidationError(
+                    f"Error from companion app: {response.status_code}"
+                )
+            return instance
+        except ConnectTimeout:
+            raise ValidationError("Unable to connect to companion app")
+        except AttributeError:
+            raise ValidationError("Missing reponse code from companion app")
 
 
 class KeySerializer(serializers.ModelSerializer):
