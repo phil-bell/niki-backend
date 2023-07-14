@@ -52,6 +52,7 @@ class ServerViewset(
                 super()
                 .get_queryset()
                 .filter(Q(owner=self.request.user) | Q(users__in=[self.request.user]))
+                .distinct()
             )
         except TypeError:
             raise Http404
@@ -74,6 +75,7 @@ class LocationViewset(
                     Q(server__owner=self.request.user)
                     | Q(server__users__in=[self.request.user.id])
                 )
+                .distinct()
             )
         except TypeError:
             raise Http404
@@ -92,6 +94,7 @@ class TorrentViewset(viewsets.ModelViewSet, AnonUserFilteredMixin):
                     Q(server__owner=self.request.user)
                     | Q(server__users__in=[self.request.user.id])
                 )
+                .distinct()
             )
         except TypeError:
             raise Http404
