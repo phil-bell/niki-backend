@@ -7,6 +7,10 @@ from nacl.encoding import HexEncoder
 from nacl.public import PrivateKey, PublicKey, SealedBox
 
 
+def generate_key():
+    return secrets.token_urlsafe(64)
+
+
 def generate_secret():
     return secrets.token_urlsafe(255)
 
@@ -20,19 +24,41 @@ class Server(models.Model):
         blank=True,
         null=True,
     )
-    public_key = models.CharField(max_length=255, blank=True, null=True)
+    key = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        default=generate_key,
+    )
+    secret = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        default=generate_secret,
+    )
+
     users = models.ManyToManyField(User, related_name="servers", blank=True)
     address = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Location(models.Model):
     path = models.CharField(max_length=255, blank=True, null=True)
-    server = models.ForeignKey(Server, on_delete=models.CASCADE, blank=True, null=True)
+    server = models.ForeignKey(
+        Server,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
 
 
 class Torrent(models.Model):
     magnet = models.TextField(blank=True, null=True)
-    server = models.ForeignKey(Server, on_delete=models.CASCADE, blank=True, null=True)
+    server = models.ForeignKey(
+        Server,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, blank=True, null=True
     )
@@ -44,7 +70,9 @@ class Torrent(models.Model):
         ).encode()
 
     def encrypt(self):
-        box = SealedBox(PublicKey(self.server.public_key.encode(), encoder=HexEncoder))
+        box = SealedBox(
+            PublicKey(self.server.public_key.encode(), encoder=HexEncoder),
+        )
         return box.encrypt(self.data)
 
 
