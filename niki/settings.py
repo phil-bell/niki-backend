@@ -94,7 +94,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "niki.wsgi.application"
 
-ASGI_APPLICATION = "miki.asgi.application"
+ASGI_APPLICATION = "niki.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -179,3 +179,9 @@ CSRF_TRUSTED_ORIGINS = config(
     default="",
     cast=Csv(str),
 )
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
