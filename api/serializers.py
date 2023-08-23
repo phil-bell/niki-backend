@@ -67,7 +67,6 @@ class TorrentSerializer(serializers.ModelSerializer):
     def create(self, *args, **kwargs):
         instance = super().create(*args, **kwargs)
         channel_layer = get_channel_layer()
-        print(channel_layer)
         async_to_sync(channel_layer.group_send)(
             instance.server.key,
             {

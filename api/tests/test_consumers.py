@@ -1,7 +1,7 @@
 from unittest.mock import call
 
 import pytest
-from asgiref.sync import sync_to_async
+from channels.layers import get_channel_layer
 from channels.routing import URLRouter
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth.models import User
@@ -25,7 +25,6 @@ async def test_poc_consumer_connect():
     message = await communicator.receive_from()
     assert message == "General Kanobi!"
 
-    # Close
     await communicator.disconnect()
 
 
@@ -41,7 +40,11 @@ async def test_server_consumer_connect(mocker):
 
     communicator = WebsocketCommunicator(application, f"/server/{server.key}")
     connected, _ = await communicator.connect()
+    channel_layer = get_channel_layer()
+
     assert connected
+    assert len(channel_layer.groups) == 1
+    assert server.key in channel_layer.groups
 
     await communicator.disconnect()
 
