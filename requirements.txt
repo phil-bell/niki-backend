@@ -13,3 +13,4 @@ the-python-bay==1.2.3
 whitenoise==6.4.0
 pytest-django==4.5.2
 pytest-asyncio==0.21.1
+pytest-mock==3.11.1

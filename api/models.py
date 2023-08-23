@@ -36,6 +36,11 @@ class Server(models.Model):
         null=True,
         default=generate_secret,
     )
+    channel_name = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+    )
 
     users = models.ManyToManyField(User, related_name="servers", blank=True)
     address = models.CharField(max_length=255, blank=True, null=True)

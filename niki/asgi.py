@@ -9,9 +9,7 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
 
 import os
 
-from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
 from niki.routing import websocket_urlpatterns

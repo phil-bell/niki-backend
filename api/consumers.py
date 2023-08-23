@@ -15,23 +15,21 @@ class PocConsumer(AsyncWebsocketConsumer):
         await self.send(text_data="General Kanobi!")
 
     async def disconnect(self, close_code):
-        # Called when the socket closes
         pass
 
 
 class ServerConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
+        key = self.scope["url_route"]["kwargs"]["key"]
+        await self.channel_layer.group_add(key, self.channel_name)
         await self.accept()
-        await self.send_json(
-            {
-                "status": "connected",
-                "key": self.scope["url_route"]["kwargs"]["key"],
-            }
-        )
 
     async def receive(self, content):
         await self.send_json({"content": content})
 
+    async def torrent_add(self, event):
+        await self.send_json({"type": "events.alarm", "content": event["content"]})
+
     async def disconnect(self, close_code):
-        # Called when the socket closes
-        pass
+        key = self.scope["url_route"]["kwargs"]["key"]
+        self.channel_layer.group_discard(key, self.channel_name)
