@@ -28,7 +28,7 @@ class ServerConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json({"content": content})
 
     async def torrent_add(self, event):
-        await self.send_json({"type": "events.alarm", "content": event["content"]})
+        await self.send_json({"type": "torrent.add", "content": event["content"]})
 
     async def disconnect(self, close_code):
         key = self.scope["url_route"]["kwargs"]["key"]

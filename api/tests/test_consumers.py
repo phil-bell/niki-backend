@@ -1,3 +1,5 @@
+from unittest.mock import call
+
 import pytest
 from asgiref.sync import sync_to_async
 from channels.routing import URLRouter
@@ -50,7 +52,7 @@ async def test_server_consumer_send_on_torrent_add_connect(
     mocker,
     async_client,
 ):
-    mock_send = mocker.patch("api.consumers.ServerConsumer.send")
+    mock_send = mocker.patch("api.consumers.ServerConsumer.send_json")
 
     user = await User.objects.acreate(username="test", password="test")
     server = await Server.objects.acreate(owner=user)
@@ -77,6 +79,16 @@ async def test_server_consumer_send_on_torrent_add_connect(
     )
 
     assert response.status_code == 201
-    assert mock_send.mock_calls == []
+    assert mock_send.mock_calls == [
+        call(
+            {
+                "type": "torrent.add",
+                "content": {
+                    "magnet": "string",
+                    "location": location.path,
+                },
+            }
+        )
+    ]
 
     await communicator.disconnect()
