@@ -1,28 +1,29 @@
-from channels.generic.websocket import (
-    AsyncJsonWebsocketConsumer,
-    AsyncWebsocketConsumer,
-)
+from channels.exceptions import DenyConnection
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-
-class PocConsumer(AsyncWebsocketConsumer):
-    groups = ["broadcast"]
-
-    async def connect(self):
-        await self.accept()
-        await self.send(text_data="Hello there!")
-
-    async def receive(self, text_data=None, bytes_data=None):
-        await self.send(text_data="General Kanobi!")
-
-    async def disconnect(self, close_code):
-        pass
+from api.models import Server
 
 
 class ServerConsumer(AsyncJsonWebsocketConsumer):
-    async def connect(self):
-        key = self.scope["url_route"]["kwargs"]["key"]
-        await self.channel_layer.group_add(key, self.channel_name)
+    @property
+    def headers(self):
+        return {key.decode(): value.decode() for key, value in self.scope["headers"]}
+
+    @property
+    def key(self):
+        return self.scope["url_route"]["kwargs"]["key"]
+
+    async def authenticate(self):
+        self.server = await Server.objects.filter(
+            key=self.key, secret=self.headers.get("authentication")
+        ).afirst()
+        if not self.server:
+            raise DenyConnection
         await self.accept()
+
+    async def connect(self):
+        await self.authenticate()
+        await self.channel_layer.group_add(self.key, self.channel_name)
 
     async def receive(self, content):
         await self.send_json({"content": content})
@@ -31,5 +32,5 @@ class ServerConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json({"type": "torrent.add", "content": event["content"]})
 
     async def disconnect(self, close_code):
-        key = self.scope["url_route"]["kwargs"]["key"]
-        self.channel_layer.group_discard(key, self.channel_name)
+        self.channel_layer.group_discard(self.key, self.channel_name)
+        self.server = None
