@@ -30,9 +30,9 @@ class ServerSerializer(serializers.ModelSerializer):
             "url",
             "name",
             "owner",
-            "public_key",
             "users",
-            "address",
+            "key",
+            "secret",
         ]
 
     def create(self, *args, **kwargs):
