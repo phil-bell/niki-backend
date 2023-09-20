@@ -8,11 +8,11 @@ from nacl.public import PrivateKey, PublicKey, SealedBox
 
 
 def generate_key():
-    return secrets.token_urlsafe(64)
+    return secrets.token_urlsafe(191)
 
 
 def generate_secret():
-    return secrets.token_urlsafe(255)
+    return secrets.token_urlsafe(191)
 
 
 class Server(models.Model):
