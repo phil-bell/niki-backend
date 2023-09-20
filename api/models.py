@@ -25,7 +25,7 @@ class Server(models.Model):
         null=True,
     )
     key = models.CharField(
-        max_length=64,
+        max_length=255,
         blank=True,
         null=True,
         default=generate_key,
