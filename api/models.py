@@ -8,7 +8,7 @@ from nacl.public import PrivateKey, PublicKey, SealedBox
 
 
 def generate_key():
-    return secrets.token_urlsafe(191)
+    return secrets.token_urlsafe(74)
 
 
 def generate_secret():
