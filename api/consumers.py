@@ -17,6 +17,9 @@ class ServerConsumer(AsyncJsonWebsocketConsumer):
         self.server = await Server.objects.filter(
             key=self.key, secret=self.headers.get("authentication")
         ).afirst()
+        print(f"{self.key=}")
+        print(f"{self.headers.get('authentication')=}")
+        print(f"{self.server}")
         if not self.server:
             raise DenyConnection
         await self.accept()
