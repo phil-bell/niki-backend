@@ -1,10 +1,9 @@
 import logging
 
-import requests
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib.auth.models import User
-from requests.exceptions import ConnectTimeout
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from api.models import Key, Location, Server, Torrent
 
@@ -67,22 +66,18 @@ class TorrentSerializer(serializers.ModelSerializer):
 
     def create(self, *args, **kwargs):
         instance = super().create(*args, **kwargs)
-        data = instance.encrypt()
-        try:
-            response = requests.post(
-                f"{instance.server.address}/add/",
-                data=data,
-                timeout=5,
-            )
-            if response.status_code != 200:
-                raise ValidationError(
-                    f"Error from companion app: {response.status_code}"
-                )
-            return instance
-        except ConnectTimeout:
-            raise ValidationError("Unable to connect to companion app")
-        except AttributeError:
-            raise ValidationError("Missing reponse code from companion app")
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            instance.server.key,
+            {
+                "type": "torrent.add",
+                "content": {
+                    "magnet": instance.magnet,
+                    "location": instance.location.path,
+                },
+            },
+        )
+        return instance
 
 
 class KeySerializer(serializers.ModelSerializer):

@@ -37,6 +37,7 @@ ALLOWED_HOSTS = config(
 
 # Application definition
 DJANGO_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -93,16 +94,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "niki.wsgi.application"
 
+ASGI_APPLICATION = "niki.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
     "default": {
-        "ENGINE": config(
-            "DB_ENGINE",
-            "django.db.backends.sqlite3"
-        ),
+        "ENGINE": config("DB_ENGINE", "django.db.backends.sqlite3"),
         "NAME": config("DB_NAME", BASE_DIR / "db.sqlite3"),
         "USER": config("DB_USER", ""),
         "PASSWORD": config("DB_PASSWORD", ""),
@@ -180,3 +179,9 @@ CSRF_TRUSTED_ORIGINS = config(
     default="",
     cast=Csv(str),
 )
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
