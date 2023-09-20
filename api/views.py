@@ -107,6 +107,7 @@ class KeyViewset(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 class SearchView(APIView):
     def post(self, request, format=None):
+        print("HERE IS A TEST")
         serializer = SearchSerializer(data=request.data)
         if serializer.is_valid():
             results = tpb.search(serializer.validated_data["term"])
